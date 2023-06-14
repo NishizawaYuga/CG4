@@ -337,7 +337,7 @@ void FbxLoader::ConvertMatrixFromFbx(DirectX::XMMATRIX* dst, const FbxAMatrix& s
 void FbxLoader::ParseSkin(Model* model, FbxMesh* fbxMesh) {
 	//スキニング情報
 	FbxSkin* fbxSkin = static_cast<FbxSkin*>(fbxMesh->GetDeformer(0, FbxDeformer::eSkin));
-	//スキニグ情報がなければ終了
+	//スキニング情報がなければ終了
 	if (fbxSkin == nullptr) {
 		return;
 	}

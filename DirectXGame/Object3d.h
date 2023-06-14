@@ -82,6 +82,11 @@ public:	//メンバ関数
 	/// </summary>
 	void Draw(ID3D12GraphicsCommandList* cmdList);
 
+	/// <summary>
+	/// アニメーション開始
+	/// </summary>
+	void PlayAnimation();
+
 protected:	//メンバ変数
 	//定数バッファ
 	ComPtr<ID3D12Resource> coustBuffTransform;
@@ -98,4 +103,15 @@ protected:	//メンバ変数
 	XMMATRIX matWorld;
 	//モデル
 	Model* model = nullptr;
+
+	//1フレームの時間
+	FbxTime frameTime;
+	//アニメーション開始時間
+	FbxTime startTime;
+	//アニメーション終了時間
+	FbxTime endTime;
+	//現在時間（アニメーション）
+	FbxTime currentTime;
+	//アニメーション再生中
+	bool isPlay = false;
 };
