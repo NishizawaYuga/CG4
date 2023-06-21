@@ -71,12 +71,13 @@ void GameScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio * audio)
 	camera->SetDistance(10.0f);
 
 	//モデル名を指定してファイル読み込み
-	model1 = FbxLoader::GetInstance()->LoadModelFromFile("bone");
+	model1 = FbxLoader::GetInstance()->LoadModelFromFile("bonetest");
 
 	//3Dオブジェクト生成とモデルのセット
 	object1 = new Object3d;
 	object1->Initialize();
 	object1->SetModel(model1);
+	object1->SetRotation({ 0,90,0 });
 
 	object1->PlayAnimation();
 }
