@@ -4,6 +4,10 @@
 
 using namespace DirectX;
 
+//静的メンバ変数の実体
+//										  Red Green Blue Alpha
+const float PostEffect::clearColor[4] = { 0.25f,0.5f,0.1f,0.0f };	//緑っぽい色
+
 PostEffect::PostEffect()
 	: Sprite(
 		100,				//テクスチャ番号
@@ -22,7 +26,6 @@ void PostEffect::Initialize()
 
 	//基底クラスとしての初期化
 	Sprite::Initialize();
-
 	//テクスチャ生成
 	CreateTexture(result);
 	//SRV作成
@@ -33,7 +36,6 @@ void PostEffect::Initialize()
 	CreateDepthBuffer(result);
 	//DSV作成
 	CreateDSV(result);
-
 }
 
 void PostEffect::Draw(ID3D12GraphicsCommandList* cmdList)
@@ -73,6 +75,44 @@ void PostEffect::Draw(ID3D12GraphicsCommandList* cmdList)
 	cmdList->DrawInstanced(4, 1, 0, 0);
 }
 
+void PostEffect::PreDrawScene(ID3D12GraphicsCommandList* cmdList)
+{
+	//リソースバリアを変更（シェーダーリソース→描画可能）
+	cmdList->ResourceBarrier(1,
+		&CD3DX12_RESOURCE_BARRIER::Transition(texBuff.Get(),
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	//レンダーターゲットビュー用ディスクリプタヒープのハンドルを取得
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH =
+		descHeapRTV->GetCPUDescriptorHandleForHeapStart();
+	//深度ステンシルビュー用デスクリプタヒープのハンドルを取得
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvH =
+		descHeapDSV->GetCPUDescriptorHandleForHeapStart();
+	//レンダーターゲットをセット
+	cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvH);
+
+	//ビューポートの設定
+	cmdList->RSSetViewports(1, &CD3DX12_VIEWPORT(0.0f, 0.0f,
+		WinApp::window_width, WinApp::window_height));
+	//シザリング矩形の設定
+	cmdList->RSSetScissorRects(1, &CD3DX12_RECT(0, 0, WinApp::window_width,
+		WinApp::window_height));
+
+	//全画面クリア
+	cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
+	//深度バッファのクリア
+	cmdList->ClearDepthStencilView(dsvH, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+}
+
+void PostEffect::PostDrawScene(ID3D12GraphicsCommandList* cmdList)
+{
+	//リソースバリアを変更（描画可能→シェーダーリソース）
+	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(texBuff.Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+}
+
+
 void PostEffect::CreateTexture(HRESULT& result)
 {
 	//テクスチャリソース設定
@@ -90,7 +130,7 @@ void PostEffect::CreateTexture(HRESULT& result)
 		D3D12_HEAP_FLAG_NONE,
 		&texresDesc,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		nullptr,
+		&CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,clearColor),
 		IID_PPV_ARGS(&texBuff));
 	assert(SUCCUUDED(result));
 
