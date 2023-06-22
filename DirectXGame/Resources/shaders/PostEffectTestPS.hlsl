@@ -7,8 +7,9 @@ float4 main(VSOutput input) : SV_TARGET
 {
 	//UV指定したピクセルの色をサンプリング
 	//float4 texcolor = tex.Sample(smp,input.uv);
-
-	float4 texcolor = tex.Sample(smp,input.uv + float2(0.5f,0));			//UVずらし
+	
+	//UVずらし
+	float4 texcolor = tex.Sample(smp,input.uv + float2(0.5f,0));
 
 	//通常
 	return float4(texcolor.rgb, 1);
