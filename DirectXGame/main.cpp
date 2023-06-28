@@ -89,6 +89,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int)
 		dxCommon->PostDraw();
 	}
 	// 各種解放
+	// gameSceneを解放してからFbxLoaderを解放する
 	delete postEffect;
 	safe_delete(gameScene);
 	FbxLoader::GetInstance()->Finalize();
