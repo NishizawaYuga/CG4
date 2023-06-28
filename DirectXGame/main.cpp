@@ -90,8 +90,8 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int)
 	}
 	// 各種解放
 	delete postEffect;
-	FbxLoader::GetInstance()->Finalize();
 	safe_delete(gameScene);
+	FbxLoader::GetInstance()->Finalize();
 	safe_delete(audio);
 	safe_delete(dxCommon);
 
